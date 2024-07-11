@@ -75,8 +75,13 @@ WSGI_APPLICATION = 'src.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 import json
-with open(f"{BASE_DIR}/db.json", "r") as file:
-    config = json.load(file) 
+import os
+
+if os.path.isfile(f"{BASE_DIR}/db.json"):
+    with open(f"{BASE_DIR}/db.json", "r") as file:
+        config = json.load(file) 
+else:
+    config = {}
 
 DATABASES = {
     "default": {

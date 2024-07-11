@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 import json
 from django.conf import settings
+import os
 
 
 class Client(models.Model):
@@ -40,8 +41,14 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 def add_to_local_json(config, db_name):
     file_path = "{}/{}".format(settings.BASE_DIR, 'db.json')
     existing_data = None
-    with open(file_path, 'r') as file:
-        existing_data = json.load(file)
+
+    if not os.path.isfile(file_path):
+        with open(file_path, 'w') as file:
+            json.dump({}, file)
+            existing_data = {}
+    else:
+        with open(file_path, 'r') as file:
+            existing_data = json.load(file)
 
     if type(existing_data) == dict:
         existing_data[db_name] = config
@@ -85,6 +92,7 @@ def create_superuser(username, email, password, db_name):
             is_staff=True            
         )
         user.set_password(password)
+        user.save(using=db_name)
 
         print(f"Superuser {username} created successfully.")
     else:
